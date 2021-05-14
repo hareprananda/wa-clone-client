@@ -26,7 +26,7 @@ const SearchInput = styled.input`
   border-radius: 5px;
   background-color: transparent;
   flex: 1;
-  padding: 5px 0px;
+  padding: 5px 3px;
   color: white;
 `;
 
@@ -47,6 +47,13 @@ const Search = styled.div`
   padding: 20px;
   border-radius: 2px;
 `;
+const SidebarButton = styled(({ color, ...otherprops }) => (
+  <Button color="inherit" {...otherprops} />
+))`
+  width: 100%;
+  color: white;
+  text-transform: uppercase;
+`;
 
 const Sidebar: FC = () => {
   return (
@@ -63,6 +70,12 @@ const Sidebar: FC = () => {
           </IconButton>
         </IconsContainer>
       </Header>
+      <Search>
+        <SearchIcon color="inherit" />
+        <SearchInput placeholder="Search in chats" />
+      </Search>
+      <SidebarButton>start a new chat</SidebarButton>
+      {/* List of chat */}
     </Container>
   );
 };
