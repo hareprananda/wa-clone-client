@@ -4,6 +4,69 @@ import styled from "styled-components";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import ChatIcon from "@material-ui/icons/Chat";
 import SearchIcon from "@material-ui/icons/Search";
+import { auth } from "../firebase";
+import * as EmailValidator from "email-validator";
+import { db } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { useCollection } from "react-firebase-hooks/firestore";
+import Chat from "./Chat";
+
+const Sidebar: FC = () => {
+  const [user] = useAuthState(auth);
+  const userChatRef = db
+    .collection("chats")
+    .where("users", "array-contains", user.email);
+
+  const [chatSnapshot] = useCollection(userChatRef);
+  const createChat = () => {
+    const input = prompt(
+      "Please enter an email address for the user you wish to chat with!"
+    );
+    if (!input) return null;
+
+    if (
+      EmailValidator.validate(input) &&
+      input !== user.email &&
+      !chatAlreadyExist(input)
+    ) {
+      db.collection("chats").add({
+        users: [user.email, input],
+      });
+    }
+  };
+  const chatAlreadyExist = (recipientEmail) =>
+    !!chatSnapshot?.docs.find(
+      (chat) =>
+        chat.data().users.find((user) => user === recipientEmail)?.length > 0
+    );
+  return (
+    <Container>
+      <Header>
+        <UserAvatar src={user.photoURL} onClick={() => auth.signOut()} />
+
+        <IconsContainer>
+          <IconButton color="inherit">
+            <ChatIcon color="inherit" />
+          </IconButton>
+          <IconButton color="inherit">
+            <MoreVertIcon color="inherit" />
+          </IconButton>
+        </IconsContainer>
+      </Header>
+      <Search>
+        <SearchIcon color="inherit" />
+        <SearchInput placeholder="Search in chats" />
+      </Search>
+      <SidebarButton onClick={createChat}>start a new chat</SidebarButton>
+      {/* List of chat */}
+      {chatSnapshot?.docs.map((chat) => (
+        <Chat key={chat.id} id={chat.id} users={chat.data().users} />
+      ))}
+    </Container>
+  );
+};
+
+export default Sidebar;
 
 const Container = styled.div``;
 
@@ -54,30 +117,3 @@ const SidebarButton = styled(({ color, ...otherprops }) => (
   color: white;
   text-transform: uppercase;
 `;
-
-const Sidebar: FC = () => {
-  return (
-    <Container>
-      <Header>
-        <UserAvatar />
-
-        <IconsContainer>
-          <IconButton color="inherit">
-            <ChatIcon color="inherit" />
-          </IconButton>
-          <IconButton color="inherit">
-            <MoreVertIcon color="inherit" />
-          </IconButton>
-        </IconsContainer>
-      </Header>
-      <Search>
-        <SearchIcon color="inherit" />
-        <SearchInput placeholder="Search in chats" />
-      </Search>
-      <SidebarButton>start a new chat</SidebarButton>
-      {/* List of chat */}
-    </Container>
-  );
-};
-
-export default Sidebar;
