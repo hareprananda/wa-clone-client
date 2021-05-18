@@ -6,7 +6,7 @@ interface Props {
   user: any;
 }
 const Message: FC<Props> = ({ message, user }) => {
-  return <Container>{message}</Container>;
+  return <Container>{message.message}</Container>;
 };
 
 export default Message;

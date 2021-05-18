@@ -12,7 +12,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     if (user) {
-      console.log(user);
       db.collection("users").doc(user.uid).set(
         {
           name: user.displayName,
